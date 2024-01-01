@@ -34,6 +34,8 @@ void hexToBin(char token[]){
 int main(){
     FILE *object = fopen("object.txt","r");
     int start; int code;
+    char opcode[25], addr[25];
+    char arr[25];
     char line[100];
     printf("Enter starting address : ");
     scanf("%x",&start);
@@ -49,9 +51,30 @@ int main(){
             int bitCount = 0;
             while (token != NULL){
                 if (BITMASK[bitCount] == '1'){
-                    code = strtol(token, NULL,16);
+                    opcode[0] = '\0';
+                    addr[0] = '\0';
+                    //code = strtol(token, NULL,16);
+                    //sprintf(arr, "%x", code);
+                    //printf("%ld\n", strlen(token));
+                    for (int i  =0; i < strlen(token); i++){
+                        int opLen = strlen(opcode);
+                        int addrLen = strlen(addr);
+                        if (i == 0 || i == 1){
+                          //strcat(opcode, token[i]);
+                          opcode[opLen] = token[i];
+                          opcode[opLen+1] = '\0';
+                          
+                        }
+                        else {
+                            //strcat(addr,token[i]);
+                            addr[addrLen] = token[i];
+                            addr[addrLen+1] = '\0';
+                        } 
+                    }
+                    code = strtol(addr,NULL,16);
                     code += first;
-                    printf("%x : %x\n", start, code);
+                    //printf("\n");
+                    printf("%x : %s%x\n", start,opcode,code);
                 }
                 else
                   printf("%x : %s\n", start, token);
