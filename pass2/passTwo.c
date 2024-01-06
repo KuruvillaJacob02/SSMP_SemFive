@@ -12,7 +12,7 @@ int searchSym(char operand[]){
     while (fscanf(symtab,"%s\t%s",label,code) != EOF){
         //printf("%s %s\n",label,code);
         if (strcmp(operand,label) == 0){
-            strcpy(ADDR[count],code);  //Stores OPCODE
+            strcpy(ADDR[count],code);  //Stores OPCODE     ADDDR[0] = 4000 , ADDR[1] = 400C
             return 1;
         }
     }
@@ -25,7 +25,7 @@ int searchOp(int locctr, char opcode[]){
     while (fscanf(optab,"%s %s",label,code) != EOF){
         //printf("%s %s\n",label,code);
         if (strcmp(opcode,label) == 0){
-            strcpy(OP[count],code);  //Stores OPCODE
+            strcpy(OP[count],code);  //Stores OPCODE OP[0] = 00,  OP[1] - ??
             return 1;
         }
     }
@@ -45,32 +45,34 @@ int main(){
     if (strcmp("START",opcode) == 0){
         fprintf(object,"H^%s^%s^%s\n",label,operand,flength);
     }
+    int locctr = strtol(address, NULL, 16);
     while (feof(intermediate) != 1){
         fscanf(intermediate, "%s\t%s\t%s\t%s", address,label,opcode,operand);
         //printf("%s\t%s\t%s\t%s\n",address,label,opcode,operand);
-        int locctr = strtol(address, NULL, 16);
+  
         
         if (count == 0){            //Initializing text record
             start = locctr;
             rsize = 0;
         }
         
-        int opStatus = searchOp(locctr,opcode);
-        int symStatus = searchSym(operand);
-        
+          int opStatus = searchOp(locctr,opcode);  
+          int symStatus = searchSym(operand);
+          
         if (strcmp("WORD", opcode) == 0){
             rsize += 3;
-            strcpy(OP[count],operand);
+            strcpy(OP[count],operand);  
         }   
-        else if (strcmp("BYTE", opcode) == 0){
+        else if (strcmp("BYTE", opcode) == 0){  // C'HELLO'    ASCII =[123]    ' \' '
             char *constant = operand + 2;
             int codeCount = 0;
             char ascii[25];
-            for (int i = 0; constant[i] != '\''; ++i) {
+            for (int i = 0; constant[i] != '\''; ++i) {    
                 //printf("%02X ", constant[i]); 
-                codeCount += sprintf(ascii + codeCount, "%02X", constant[i]);
+                codeCount += sprintf(ascii + codeCount, "%02X", constant[i]);       //
             }
             strcpy(OP[count],ascii);
+            //printf("STRING = %d\n", strlen(operand)-3);
             rsize += strlen(operand) - 3;
         }
         else if (strcmp("RESW", opcode) == 0)   rsize += 0;           	
@@ -80,6 +82,9 @@ int main(){
 	    strcpy(ADDR[count],"");
 	    fprintf(object, "T^%x^%x^%s%s^%s%s^%s%s\n", start, rsize, OP[0],ADDR[0],OP[1],ADDR[1],OP[2],ADDR[2]);	
 	    break;
+        }
+        else if (opStatus == 1){
+            rsize += 3;
         }
         else if (opStatus == -1){
             printf("INVALID OPCODE\n");
@@ -91,7 +96,8 @@ int main(){
         }
         
         if(count == 2) {
-			fprintf(object, "T^%x^%x^%s%s^%s%s^%s%s\n", start, rsize, OP[0],ADDR[0],OP[1],ADDR[1],OP[2],ADDR[2]);	
+                        printf("RSIZE = %d\n",rsize);
+			fprintf(object, "T^%x^%d^%s%s^%s%s^%s%s\n", start, rsize, OP[0],ADDR[0],OP[1],ADDR[1],OP[2],ADDR[2]);	
 			locctr += rsize;
 			strcpy(OP[0],"");
 			strcpy(ADDR[0],"");
